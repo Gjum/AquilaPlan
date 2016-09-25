@@ -87,7 +87,7 @@ public class LiteModAquilaPlan implements PostRenderListener, Tickable {
 
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        if (inGame && minecraft.currentScreen == null && Minecraft.isGuiEnabled()) {
+        if (inGame && Minecraft.isGuiEnabled()) {
             if (LiteModAquilaPlan.toggleShownKey.isPressed()) {
                 visible = !visible;
                 LiteLoader.getInstance().writeConfig(this);
