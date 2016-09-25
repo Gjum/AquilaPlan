@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 @ExposableOptions(strategy = ConfigStrategy.Versioned, filename = "aquilaPlan.json")
 public class LiteModAquilaPlan implements PostRenderListener, Tickable {
-    private static KeyBinding toggleShownKey = new KeyBinding("key.aquilaPlan.toggleShown", Keyboard.KEY_O, "key.categories.litemods");
+    private static KeyBinding toggleShownKey = new KeyBinding("key.aquilaPlan.toggleShown", Keyboard.KEY_P, "key.categories.litemods");
     private static KeyBinding toggleFixedHeightKey = new KeyBinding("key.aquilaPlan.toggleFixedHeight", Keyboard.KEY_H, "key.categories.litemods");
 
     @Expose
@@ -134,28 +134,16 @@ public class LiteModAquilaPlan implements PostRenderListener, Tickable {
 
         for (int i = 0; i < districtCorners.length; i++) {
             int[][] district = districtCorners[i];
-
-            int dcx = 0, dcz = 0;
-            for (int[] corner : district) {
-                dcx += corner[1];
-                dcz += corner[0];
-            }
-            dcx /= district.length;
-            dcz /= district.length;
-
             float[] color = districtColors[i];
             glColor4f(color[0], color[1], color[2], .5f);
 
+            // show outlines at different heights so they don't overlap
+            float districtHeight = .5f * i / districtCorners.length;
+
             glBegin(GL_LINE_LOOP);
             for (int[] corner : district) {
-                // point format: lat,long == z,x
-                float z = corner[0];
-                float x = corner[1];
-                // offset lines into the district a bit,
-                // so they don't overlap with other districts
-                x = x > dcx ? x - .2f : x + .2f;
-                z = z > dcz ? z - .2f : z + .2f;
-                glVertex3f(x, 0, z);
+                // point format: [lat,long] == [z,x]
+                glVertex3f(corner[1], districtHeight, corner[0]);
             }
             glEnd();
         }
@@ -175,32 +163,32 @@ public class LiteModAquilaPlan implements PostRenderListener, Tickable {
     }
 
     private static final float[][] districtColors = {
-            {  1,  0,  1}, // capital
-            {  1,  0,  0}, // district 6
-            {  1,  1,  0}, // district 5
-            {  1,  1,  0}, // district 4
             {  0,  0,  1}, // newfriend-ville
-            {.5f,.5f,.5f}, // district 2
             {.5f,.5f,.5f}, // district 1
+            {.5f,.5f,.5f}, // district 2
             {.5f,.5f,.5f}, // district 3
+            {  1,  1,  0}, // district 4
+            {  1,  1,  0}, // district 5
+            {  1,  0,  0}, // district 6
+            {  1,  0,  1}, // capital
     };
 
     private static final int[][][] districtCorners = {
-            // capital
-            {{-51, 21}, {-93, 21}, {-21, 93}, {-21, 51}, {21, 51}, {21, 93}, {63, 51}, {123, 51}, {93, 21}, {51, 21}, {51, -21}, {93, -21}, {123, -51}, {63, -51}, {21, -93}, {21, -51}, {-21, -51}, {-21, -93}, {-93, -21}, {-51, -21}},
-            // district 6
-            {{-51, 21}, {-93, 21}, {-21, 93}, {-51, 123}, {-93, 123}, {-93, 165}, {-165, 93}, {-123, 93}, {-123, 51}, {-165, 51}, {-195, 21}, {-195, -21}, {-165, -51}, {-123, -51}, {-123, -93}, {-165, -93}, {-93, -165}, {-93, -123}, {-51, -123}, {-21, -93}, {-93, -21}, {-51, -21}},
-            // district 5
-            {{-21, 93}, {-21, 51}, {21, 51}, {21, 93}, {63, 51}, {123, 51}, {123, 93}, {165, 93}, {93, 165}, {93, 123}, {51, 123}, {51, 165}, {21, 195}, {-21, 195}, {-51, 165}, {-51, 123}},
-            // district 4
-            {{-21, -93}, {-21, -51}, {21, -51}, {21, -93}, {63, -51}, {123, -51}, {123, -93}, {165, -93}, {93, -165}, {93, -123}, {51, -123}, {51, -165}, {21, -195}, {-21, -195}, {-51, -165}, {-51, -123}},
             // newfriend-ville
             {{51, 21}, {93, 21}, {123, 51}, {123, 93}, {165, 93}, {207, 51}, {267, 51}, {237, 21}, {237, -21}, {267, -51}, {207, -51}, {165, -93}, {123, -93}, {123, -51}, {93, -21}, {51, -21}},
-            // district 2
-            {{93, 165}, {93, 123}, {51, 123}, {51, 165}, {21, 195}, {21, 237}, {51, 267}, {93, 267}, {267, 93}, {267, 51}, {207, 51}},
             // district 1
             {{93, -165}, {93, -123}, {51, -123}, {51, -165}, {21, -195}, {21, -237}, {51, -267}, {93, -267}, {267, -93}, {267, -51}, {207, -51}},
+            // district 2
+            {{93, 165}, {93, 123}, {51, 123}, {51, 165}, {21, 195}, {21, 237}, {51, 267}, {93, 267}, {267, 93}, {267, 51}, {207, 51}},
             // district 3
             {{-267, 93}, {-93, 267}, {-51, 267}, {-21, 237}, {-21, 195}, {-51, 165}, {-51, 123}, {-93, 123}, {-93, 165}, {-165, 93}, {-123, 93}, {-123, 51}, {-165, 51}, {-195, 21}, {-195, -21}, {-165, -51}, {-123, -51}, {-123, -93}, {-165, -93}, {-93, -165}, {-93, -123}, {-51, -123}, {-51, -165}, {-21, -195}, {-21, -237}, {-51, -267}, {-93, -267}, {-267, -93}},
+            // district 4
+            {{-21, -93}, {-21, -51}, {21, -51}, {21, -93}, {63, -51}, {123, -51}, {123, -93}, {165, -93}, {93, -165}, {93, -123}, {51, -123}, {51, -165}, {21, -195}, {-21, -195}, {-51, -165}, {-51, -123}},
+            // district 5
+            {{-21, 93}, {-21, 51}, {21, 51}, {21, 93}, {63, 51}, {123, 51}, {123, 93}, {165, 93}, {93, 165}, {93, 123}, {51, 123}, {51, 165}, {21, 195}, {-21, 195}, {-51, 165}, {-51, 123}},
+            // district 6
+            {{-51, 21}, {-93, 21}, {-21, 93}, {-51, 123}, {-93, 123}, {-93, 165}, {-165, 93}, {-123, 93}, {-123, 51}, {-165, 51}, {-195, 21}, {-195, -21}, {-165, -51}, {-123, -51}, {-123, -93}, {-165, -93}, {-93, -165}, {-93, -123}, {-51, -123}, {-21, -93}, {-93, -21}, {-51, -21}},
+            // capital
+            {{-51, 21}, {-93, 21}, {-21, 93}, {-21, 51}, {21, 51}, {21, 93}, {63, 51}, {123, 51}, {93, 21}, {51, 21}, {51, -21}, {93, -21}, {123, -51}, {63, -51}, {21, -93}, {21, -51}, {-21, -51}, {-21, -93}, {-93, -21}, {-51, -21}},
     };
 }
